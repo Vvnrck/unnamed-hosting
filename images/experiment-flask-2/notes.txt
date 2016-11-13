@@ -1,0 +1,1 @@
+sudo docker run -d -p 45000:5000 b086367e3fb4 sh /unnamed-hosting-sample-flask/run.sh

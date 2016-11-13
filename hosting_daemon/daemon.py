@@ -27,7 +27,7 @@ def _docker_validate(docker_response):
 
 
 def _docker_ps():
-    ps = namedtuple('Ps', ['container_id', 'image_id'])
+    rc = namedtuple('RunningContainers', ['container_id', 'image_id'])
     apps_running = []
 
     data = subprocess.Popen(
@@ -38,13 +38,30 @@ def _docker_ps():
 
     for line in filter(len, data.split('\n')[1:]):
         items = line.split()
-        apps_running.append(ps(items[0], items[1]))
+        apps_running.append(rc(items[0], items[1]))
     return apps_running
+
+
+def _docker_images():
+    ai = namedtuple('AvailableImages', ['image_id'])
+    available_images = set()
+
+    data = subprocess.Popen(
+        ["docker", "images"], stdout=subprocess.PIPE
+    ).communicate()[0]
+    _docker_validate(data)
+    data = str(data, 'utf-8')
+    
+    for line in filter(len, data.split('\n')[1:]):
+        items = line.split()
+        available_images.add(ai(items[2]))
+    return available_images
+    
 
 
 def _docker_run(image_id):
     cmd = 'docker run -d -p 45000:5000 {image_id} ' + \
-          'python /unnamed-hosting-sample-flask/app.py'
+          'sh /unnamed-hosting-sample-flask/run.sh'
     data = subprocess.Popen(
         cmd.format(image_id=image_id).split(), stdout=subprocess.PIPE
     ).communicate()[0]
@@ -95,6 +112,11 @@ def get_apps_by_image_id(image_id : str) -> 'list of container IDs':
             container_ids.append(app.container_id)
     return container_ids
 
+def get_available_images() -> 'set of image IDs':
+    avail_images = {im.image_id for im in _docker_images()}
+    logger.debug('get_available_images: %s' % avail_images)
+    return avail_images
+
 
 def stop_apps(containers_id : list):
     logger.debug('Turning off containers %s' % containers_id)
@@ -109,9 +131,11 @@ def create_image(image_request : ImageRequest) -> 'image_id':
 def loop():
     logger.debug('Running app turn on/off')
 
+    available_images = get_available_images()
     running_apps = get_running_apps()
     should_run = get_apps_that_should_be_running()
     turn_on_apps = should_run - running_apps
+    turn_on_apps = turn_on_apps & available_images
     turn_off_apps = running_apps - should_run
 
     for app in turn_on_apps:
@@ -123,7 +147,11 @@ def loop():
         containers_id = get_apps_by_image_id(app)
         stop_apps(containers_id)
 
-    time.sleep(5)
+    cant_find_apps = should_run - available_images
+    if cant_find_apps:
+        logger.debug('Can\'t find apps to run: %s' % cant_find_apps)
+
+    time.sleep(10)
 
 
 if __name__ == '__main__':
