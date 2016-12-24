@@ -112,6 +112,7 @@ def get_apps_by_image_id(image_id : str) -> 'list of container IDs':
             container_ids.append(app.container_id)
     return container_ids
 
+
 def get_available_images() -> 'set of image IDs':
     avail_images = {im.image_id for im in _docker_images()}
     logger.debug('get_available_images: %s' % avail_images)
