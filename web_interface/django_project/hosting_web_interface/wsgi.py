@@ -1,5 +1,5 @@
 """
-WSGI config for hostingweb project.
+WSGI config for hosting_web_interface project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hostingweb.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hosting_web_interface.settings")
 
 application = get_wsgi_application()

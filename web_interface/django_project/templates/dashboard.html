@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    {% for app in apps %}
+        <dl>
+            <dt>{{ app.name }}</dt>
+            <dd>
+                {{ app.app_type }} from {{ app.repo_url }} <br/>
+                Current state: {{ app.current_state|default_if_none:"Disabled" }}
+            </dd>
+        </dl>
+    {% endfor %}
+
+    <form action="{% url 'new-app' %}" method="post">
+        {% csrf_token %}
+        {{ new_app_form.as_p }}
+        <input type="submit" value="Submit" />
+    </form>
+{% endblock %}

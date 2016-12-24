@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block page_title %}Override page_title{% endblock %}</title>
+    {% block extra_headers %}{% endblock %}
+</head>
+<body>
+    <p>Hello {{ user }}</p>
+    {% block body %}<h1>Override body.</h1>{% endblock %}
+    {% block body_end %}{% endblock %}
+</body>
+</html>
