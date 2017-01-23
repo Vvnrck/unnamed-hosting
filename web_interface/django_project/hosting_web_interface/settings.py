@@ -120,3 +120,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 LOGIN_URL = '/'
+
+HOSTING_DAEMON_SECRET = 'fe118078cfd314c4503956f18e22e069cb75d1b5f6fbf3542' \
+                        'e64f8e7d652ef953b668c9e4593d523f56c85a46a34f6add7' \
+                        'f9a277b0611f1bd80d39d11792a6db'

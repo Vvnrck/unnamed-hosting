@@ -23,5 +23,11 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', frontend.views.LoginOrRegisterView.as_view(), name='login'),
     url(r'^dashboard$', login_required(frontend.views.Dashboard.DashboardView.as_view()), name='dashboard'),
-    url(r'^new-app$', login_required(frontend.views.Dashboard.NewAppView.as_view()), name='new-app')
+    url(r'^new-app$', login_required(frontend.views.Dashboard.NewAppView.as_view()), name='new-app'),
+
+    url(r'^api/apps-to-enable', frontend.views.Api.get_apps_to_enable),
+    url(r'^api/apps-to-disable', frontend.views.Api.get_apps_to_disable),
+    url(r'^api/set-app-status', frontend.views.Api.set_apps_status),
+
+    url(r'^debug/all-apps', frontend.views.Api.get_all_apps)
 ]

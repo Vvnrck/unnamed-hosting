@@ -12,6 +12,18 @@ class AppStates(enum.Enum):
     disabled = 'disabled'
     paused = 'paused'
 
+    @staticmethod
+    def except_enabled():
+        return tuple(s for s in AppStates if s != AppStates.enabled) + (None,)
+
+    @staticmethod
+    def except_disabled():
+        return tuple(s for s in AppStates if s != AppStates.disabled) + (None,)
+
+    @staticmethod
+    def except_paused():
+        return tuple(s for s in AppStates if s != AppStates.paused) + (None,)
+
 
 class AppType(enum.Enum):
     static = 'static'
@@ -29,7 +41,7 @@ class App(models.Model):
 
     app_path = models.CharField(max_length=4096, null=True)
     app_url = models.CharField(max_length=4096, null=True)
-    desired_state = models.CharField(max_length=128, default=AppStates.disabled)
+    desired_state = models.CharField(max_length=128, default=AppStates.enabled)
     current_state = models.CharField(max_length=128, null=True)
     image_id = models.CharField(max_length=4096, null=True)
     container_id = models.CharField(max_length=4096, null=True)
