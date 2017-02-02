@@ -1,5 +1,6 @@
 FROM python:3.5.2
 ENV PYTHONUNBUFFERED 1
+ENV POSTGREAVAILABLE 1
 RUN mkdir /code
 WORKDIR /code
 ADD requirements.txt /code/
