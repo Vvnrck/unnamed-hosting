@@ -91,8 +91,6 @@ else:
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-if DEBUG:
-    print('Database:', DATABASES)
 
 
 # Password validation

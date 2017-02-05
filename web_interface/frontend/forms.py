@@ -7,7 +7,7 @@ class LoginOrRegisterForm(forms.Form):
     is_registration = forms.BooleanField(label='I\'m new here!', required=False, widget=forms.CheckboxInput)
 
 
-APP_TYPE = ('flask', 'flask'), ('static', 'static'),
+APP_TYPE = ('flask', 'flask'), ('static', 'static'), ('django', 'django')
 
 
 class NewAppForm(forms.Form):

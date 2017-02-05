@@ -26,6 +26,7 @@ class AppStates(enum.Enum):
 
 
 class AppType(enum.Enum):
+    django = 'django'
     static = 'static'
     flask = 'flask'
 

@@ -24,7 +24,8 @@ class App:
             self.path.mkdir(parents=True)
         except FileExistsError as e:
             print(e)
-        shutil.rmtree(str(self.path.home()))
+        print('to be deleted:', str(self.path))
+        shutil.rmtree(str(self.path))
    
     def _git_clone_app_code(self):
         pass
