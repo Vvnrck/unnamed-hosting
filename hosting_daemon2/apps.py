@@ -49,6 +49,11 @@ class BaseApp:
         
     def make_docker_files(self):
         raise NotImplementedError
+    
+    def start_app(self):
+        if self.docker_compose.ps():
+            self.docker_compose.stop()
+        self.docker_compose.up()
 
 
 class FlaskApp(BaseApp):
@@ -61,9 +66,4 @@ class FlaskApp(BaseApp):
     def make_docker_files(self):
         shutil.copy(str(self.docker_file), str(self.path))
         shutil.copy(str(self.docker_compose_file), str(self.path))
-        
-    def start_app(self):
-        if self.docker_compose.ps():
-            self.docker_compose.stop()
-        self.docker_compose.up()
 
