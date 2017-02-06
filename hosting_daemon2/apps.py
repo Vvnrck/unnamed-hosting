@@ -79,11 +79,13 @@ class DjangoApp(BaseApp):
     def __init__(self, *args):
         super().__init__(*args)
         self.nginx_conf_dir = self.DOCKER_TEMPLATES / 'config'
+        self.nginx_conf = self.DOCKER_TEMPLATES / 'config/nginx/django.conf'
    
     def make_docker_files(self):
         shutil.copy(str(self.docker_file), str(self.path))
         shutil.copy(str(self.docker_compose_file), str(self.path))
         shutil.copytree(str(self.nginx_conf_dir), str(self.path))
+        # create folder 'static' in path
         # TODO: fill templates
         
     def start_app(self):
