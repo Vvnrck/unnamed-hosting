@@ -16,7 +16,6 @@ class DockerCompose:
         response = response[2:]  # drop headers
         return response
 
-
     def port(self, service_name, private_port):
         response = subprocess.Popen(
             ["docker-compose", "port", service_name, private_port], 
@@ -27,7 +26,6 @@ class DockerCompose:
         host, port = response.split(':')
         return port
 
-
     def up(self):
         response = subprocess.Popen(
             ["docker-compose", "up", "-d"], 
@@ -36,7 +34,6 @@ class DockerCompose:
         ).communicate()[0]
         return str(response, 'utf-8')
 
-
     def stop(self):
         response = subprocess.Popen(
             ["docker-compose", "stop"], 
@@ -44,4 +41,13 @@ class DockerCompose:
             cwd=self.path
         ).communicate()[0]
         return str(response, 'utf-8')
+        
+    def exec(self, service_name, command, args=tuple()):
+        raise NotImplementedError
+        
+    def build(self, service_name=None):
+        raise NotImplementedError
+        
+    def restart(self, service_name=None):
+        raise NotImplementedError
 

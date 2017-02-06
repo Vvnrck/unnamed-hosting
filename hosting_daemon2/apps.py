@@ -8,13 +8,15 @@ from docker_compose import DockerCompose
 def create_app(json_description):
     app_class = json_description['app_type']
     return {
-        'flask': FlaskApp
+        'flask': FlaskApp,
+        'django': DjangoApp
     }[app_class](json_description)
 
 
 class BaseApp:
     APPS_HOME = Path('./user_apps')
     DOCKER_TEMPLATES = NotImplemented
+    APP_SERVICE = NotImplemented
     APP_PORT = NotImplemented
 
     def __init__(self, json_description):
@@ -33,7 +35,7 @@ class BaseApp:
         
     @property
     def exposed_port(self):
-        return self.docker_compose.port('web', self.APP_PORT)
+        return self.docker_compose.port(self.APP_SERVICE, self.APP_PORT)
         
     def prepare_app_folders(self):
         if self.path.exists():
@@ -58,7 +60,8 @@ class BaseApp:
 
 class FlaskApp(BaseApp):
     DOCKER_TEMPLATES = Path('./docker_templates/flask')
-    APP_PORT = "5000"
+    APP_SERVICE = 'web'
+    APP_PORT = '5000'
     
     def __init__(self, *args):
         super().__init__(*args)
@@ -66,4 +69,44 @@ class FlaskApp(BaseApp):
     def make_docker_files(self):
         shutil.copy(str(self.docker_file), str(self.path))
         shutil.copy(str(self.docker_compose_file), str(self.path))
+
+
+class DjangoApp(BaseApp):
+    DOCKER_TEMPLATES = Path('./docker_templates/django')
+    APP_SERVICE = 'nginx'
+    APP_PORT = '8000'
+    
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.nginx_conf_dir = self.DOCKER_TEMPLATES / 'config'
+   
+    def make_docker_files(self):
+        shutil.copy(str(self.docker_file), str(self.path))
+        shutil.copy(str(self.docker_compose_file), str(self.path))
+        shutil.copytree(str(self.nginx_conf_dir), str(self.path))
+        # TODO: fill templates
+        
+    def start_app(self):
+        # build
+        # run collectstatic
+        # run
+        raise NotImplementedError
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

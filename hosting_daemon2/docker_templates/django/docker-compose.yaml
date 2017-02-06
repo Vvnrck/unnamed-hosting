@@ -11,7 +11,7 @@ services:
       - web
   web:
     build: .
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn hosting_web_interface.wsgi:application -b 0.0.0.0:8000"
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn {{ wsgi_app_name }} -b 0.0.0.0:8000"
     depends_on:
       - db
     volumes:
@@ -25,3 +25,8 @@ services:
       POSTGRES_USER: pgsuperuser
       POSTGRES_PASSWORD: pgsuperuserpassword
 
+
+# probably should collect static as well:
+# docker exec webinterface_web_1 /bin/sh -c "python manage.py collectstatic --noinput"
+
+# {{ wsgi_app_name }} is to look like hosting_web_interface.wsgi:application
