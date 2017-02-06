@@ -1,5 +1,6 @@
 # unnamed-hosting-specific files
 user_apps/
+web_interface/static
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
