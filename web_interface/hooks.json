@@ -1,0 +1,6 @@
+{
+  "hooks": {
+    "app_type": "django",
+    "wsgi_app": "hosting_web_interface.wsgi:application"
+  }
+}

@@ -23,6 +23,7 @@ class LoginOrRegisterView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
+            'view_name': 'login',
             'login_form': LoginOrRegisterForm()
         })
         return context
@@ -49,6 +50,7 @@ class Dashboard:
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
             context.update({
+                'view_name': 'dashboard',
                 'apps': models.App.objects.filter(owner=self.request.user),
                 'app_types': models.AppType,
                 'new_app_form': NewAppForm()
@@ -68,6 +70,11 @@ class Dashboard:
                     app_type=form.cleaned_data['app_type']
                 )
             return HttpResponseRedirect(reverse('dashboard'))
+
+    class DeleteAppView(FormView):
+        def post(self, request, *args, **kwargs):
+            models.App.objects.get(pk=request.POST['id']).delete()
+            return HttpResponse(status=201)
 
     @staticmethod
     def enable_app(request, *args, **kwargs):

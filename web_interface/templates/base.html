@@ -6,12 +6,44 @@
     <meta charset="UTF-8">
     <title>{% block page_title %}Override page_title{% endblock %}</title>
     {% block extra_headers %}{% endblock %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+{#    <script src="//code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>#}
+    <script src="{% static 'jquery-3.1.1.js' %}" charset="utf-8" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
     <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
     <script src="{% static 'main.js' %}" charset="utf-8" type="text/javascript"></script>
 </head>
 <body>
-    <h1 id="hello-user" class="big-header">Hello {{ user }}</h1>
-    {% block body %}<h1>Override body.</h1>{% endblock %}
-    {% block body_end %}{% endblock %}
+    <script type="text/javascript">
+        window.app_data =  window.app_data || {};
+        window.app_data.view_name = "{{ view_name|default_if_none:"0"|escapejs }}";
+        window.app_data.csrf_token = $("{% csrf_token %}").val();
+    </script>
+
+    <div class="container">
+
+        <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a class="navbar-brand" href="{% url 'login' %}">Der H&ouml;star</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <span class="nav-link" >{% if user.is_authenticated %}Hello {{ user }}!{% endif %}</span>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div style="height: 20px;"></div>
+
+        {% block body %}<h1>Override body.</h1>{% endblock %}
+        {% block body_end %}{% endblock %}
+
+        <div style="height: 200px;"></div>
+    </div>
 </body>
 </html>

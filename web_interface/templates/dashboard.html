@@ -1,20 +1,71 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% block page_title %}Dashboard{% endblock %}
 
 {% block body %}
+    <div class="row">
     {% for app in apps %}
-        <dl>
-            <dt>{{ app.name }}</dt>
-            <dd>
-                {{ app.app_type }} from {{ app.repo_url }} <br/>
-                Current state: {{ app.current_state|default_if_none:"Disabled" }}
-            </dd>
-        </dl>
-    {% endfor %}
+        <div class="col-lg-6 app-col">
+            <div class="card app" data-app-id="{{ app.pk }}" data-app-name="{{ app.name }}">
+                <div class="card-block">
+                    <h3 class="card-title">{{ app.name }}</h3>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ app.app_type }} app</h6>
 
-    <form action="{% url 'new-app' %}" method="post">
-        {% csrf_token %}
-        {{ new_app_form.as_p }}
-        <input type="submit" value="Submit" />
-    </form>
+                    <p class="card-text">Repo: <a href="{{ app.repo_url }}">{{ app.shorter_repo_url }}</a> <br/>
+                    Status: {{ app.current_state|default_if_none:"disabled" }}</p>
+
+                    <a href="{{ app.app_url|default_if_none:"javascript:void(0)" }}" class="btn btn-outline-primary">Open app</a>
+                    <a href="" class="btn btn-outline-primary">Logs</a>
+                    <a href="" class="btn btn-outline-success">Edit</a>
+                    <button class="btn btn-outline-warning">Stop</button>
+                    <button class="delete-app btn btn-outline-danger">Delete</button>
+                </div>
+          </div>
+      </div>
+    {% endfor %}
+        <div class="col-lg-6 app-col">
+            <div class="card">
+                <div class="card-block">
+                    <h3 class="new-app-title card-title">Create new app</h3>
+                    <button class="new-app-btn btn btn-md btn-outline-success">+</button>
+                    <form action="{% url 'new-app' %}" id="new-app-form" method="post" style="display: none">
+                        {% csrf_token %}
+                        {{ new_app_form|crispy }}
+                        <input type="submit" value="Create App" class="btn btn-outline-primary" />
+                        <a href="" class="btn btn-link" target="_blank">Be sure to provide hooks!</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="modal fade" id="delete-app-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Please confirm</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Please confirm you want to delete <span id="delete-app-modal-app-name"></span>?
+                       All database data will be lost.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="confirm-delete-app btn btn-danger"
+                            data-action-url="{% url 'delete-app' %}">
+                        Delete app
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 {% endblock %}

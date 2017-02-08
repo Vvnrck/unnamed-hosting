@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^$', frontend.views.LoginOrRegisterView.as_view(), name='login'),
     url(r'^dashboard$', login_required(frontend.views.Dashboard.DashboardView.as_view()), name='dashboard'),
     url(r'^new-app$', login_required(frontend.views.Dashboard.NewAppView.as_view()), name='new-app'),
+    url(r'^delete-app$', login_required(frontend.views.Dashboard.DeleteAppView.as_view()), name='delete-app'),
 
     url(r'^api/apps-to-enable', frontend.views.Api.get_apps_to_enable),
     url(r'^api/apps-to-disable', frontend.views.Api.get_apps_to_disable),

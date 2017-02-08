@@ -1,3 +1,39 @@
-.big-header {
-    color: red;
+/*general*/
+button,
+input.btn {
+    cursor: pointer;
+}
+
+.control-group {
+    margin-top: 10px;
+}
+
+/*login*/
+.login-form {
+    width: 175px;
+    margin: auto;
+}
+
+
+/*dashboard*/
+.app-col {
+    padding: 15px;
+}
+
+.new-app-title,
+.new-app-btn {
+    display: inline;
+}
+.new-app-btn {
+    margin-left: 5px;
+}
+#new-app-form .radio {
+    padding-right: 5px;
+}
+#new-app-form .radio input {
+    margin-right: 5px;
+}
+
+#delete-app-modal-app-name {
+    font-weight: bold;
 }
