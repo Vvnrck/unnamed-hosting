@@ -3,7 +3,7 @@ import urllib.request
 
 from apps import create_app
 
-API_BASE = 'http://localhost:8000/api'
+API_BASE = 'http://localhost:8888/api'
 API_SHOULD_ENABLE_APPS = API_BASE + '/apps-to-enable'
 
         
@@ -21,6 +21,8 @@ if __name__ == '__main__':
         app.prepare_app_folders()
         app.git_clone_app_code()
         app.make_docker_files()
-        app.start_app()
-        print(app.exposed_port)
+        app.start_app(is_daemon=True)
+        app.docker_compose.stop()
+        # app.docker_compose.up()
+        # print(app.exposed_port)
 

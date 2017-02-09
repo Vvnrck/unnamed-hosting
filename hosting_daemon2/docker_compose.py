@@ -26,9 +26,10 @@ class DockerCompose:
         host, port = response.split(':')
         return port
 
-    def up(self):
+    def up(self, daemon=True):
         response = subprocess.Popen(
-            ["docker-compose", "up", "-d"], 
+            ["docker-compose", "up", "-d"] if daemon
+            else ["docker-compose", "up"], 
             stdout=subprocess.PIPE,
             cwd=self.path
         ).communicate()[0]

@@ -3,7 +3,7 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      - "8000"
+      - "8888:8000"
     volumes:
       - .:/code
       - ./config/nginx:/etc/nginx/conf.d
@@ -11,7 +11,7 @@ services:
       - web
   web:
     build: .
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn hosting_web_interface.wsgi:application -b 0.0.0.0:8000"
+    command: bash -c "pip install -r requirements.txt && python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn hosting_web_interface.wsgi:application -b 0.0.0.0:8000"
     depends_on:
       - db
     volumes:

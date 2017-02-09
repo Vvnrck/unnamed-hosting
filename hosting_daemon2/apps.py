@@ -1,3 +1,5 @@
+import os
+import json
 import shutil
 import subprocess
 
@@ -12,12 +14,14 @@ def create_app(json_description):
         'django': DjangoApp
     }[app_class](json_description)
 
+# TODO: create app validator
 
 class BaseApp:
     APPS_HOME = Path('./user_apps')
     DOCKER_TEMPLATES = NotImplemented
     APP_SERVICE = NotImplemented
     APP_PORT = NotImplemented
+    PROJECT_HOOKS_FILE = 'hooks.json'
 
     def __init__(self, json_description):
         self.app_type = json_description['app_type']
@@ -28,6 +32,8 @@ class BaseApp:
         self.docker_file = self.DOCKER_TEMPLATES / 'Dockerfile'
         self.docker_compose_file = self.DOCKER_TEMPLATES / 'docker-compose.yml'
         self.docker_compose = DockerCompose(self.path)
+        
+        self._project_hooks = None
     
     @property
     def is_running(self):
@@ -36,6 +42,14 @@ class BaseApp:
     @property
     def exposed_port(self):
         return self.docker_compose.port(self.APP_SERVICE, self.APP_PORT)
+        
+    @property
+    def project_hooks(self):
+        if self._project_hooks is None:
+            hooks = self.path / self.PROJECT_HOOKS_FILE
+            with hooks.open() as hooks_file:
+                self._project_hooks = json.load(hooks_file).get('hooks', {})
+        return self._project_hooks
         
     def prepare_app_folders(self):
         if self.path.exists():
@@ -52,10 +66,10 @@ class BaseApp:
     def make_docker_files(self):
         raise NotImplementedError
     
-    def start_app(self):
+    def start_app(self, is_daemon=True):
         if self.docker_compose.ps():
             self.docker_compose.stop()
-        self.docker_compose.up()
+        self.docker_compose.up(is_daemon)
 
 
 class FlaskApp(BaseApp):
@@ -79,20 +93,27 @@ class DjangoApp(BaseApp):
     def __init__(self, *args):
         super().__init__(*args)
         self.nginx_conf_dir = self.DOCKER_TEMPLATES / 'config'
-        self.nginx_conf = self.DOCKER_TEMPLATES / 'config/nginx/django.conf'
-   
+
     def make_docker_files(self):
         shutil.copy(str(self.docker_file), str(self.path))
         shutil.copy(str(self.docker_compose_file), str(self.path))
-        shutil.copytree(str(self.nginx_conf_dir), str(self.path))
-        # create folder 'static' in path
-        # TODO: fill templates
         
-    def start_app(self):
+        shutil.copytree(str(self.nginx_conf_dir), str(self.path / 'config'))
+        (self.path / 'static').mkdir()
+        
+        new_compose_path = self.path / self.docker_compose_file.name
+        template = ''
+        with new_compose_path.open('r') as text:
+            template = text.read()
+        wsgi_app = self.project_hooks['wsgi_app']
+        with new_compose_path.open('w') as compose_file:
+            compose_file.write(template.format(wsgi_app_name=wsgi_app))
+
+    # def start_app(self):
         # build
         # run collectstatic
         # run
-        raise NotImplementedError
+        # raise NotImplementedError
 
 
 
