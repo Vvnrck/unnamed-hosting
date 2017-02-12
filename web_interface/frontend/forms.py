@@ -4,7 +4,7 @@ from django import forms
 class LoginOrRegisterForm(forms.Form):
     name = forms.CharField(label='Name', max_length=64, required=True, widget=forms.TextInput)
     password = forms.CharField(label='Password', max_length=512, required=True, widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Repeat password', max_length=512, required=True, widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Repeat password', max_length=512, required=False, widget=forms.PasswordInput)
     is_registration = forms.BooleanField(label='I\'m new here!', required=False, widget=forms.HiddenInput)
 
 

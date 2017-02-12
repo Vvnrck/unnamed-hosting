@@ -122,6 +122,7 @@ class Api:
         )
         apps = [{
             'id': app.id,
+            'name': app.name,
             'repo_url': app.repo_url,
             'app_type': app.app_type,
             'app_path': app.app_path,
@@ -144,6 +145,7 @@ class Api:
         )
         apps = [{
             'id': app.id,
+            'name': app.name,
             'repo_url': app.repo_url,
             'app_type': app.app_type,
             'app_path': app.app_path,

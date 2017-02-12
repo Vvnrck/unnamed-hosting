@@ -24,6 +24,7 @@ class BaseApp:
     PROJECT_HOOKS_FILE = 'hooks.json'
 
     def __init__(self, json_description):
+        self.name = json_description['name']
         self.app_type = json_description['app_type']
         self.path = self.APPS_HOME / json_description['app_path']
         self.app_url = json_description['app_url']

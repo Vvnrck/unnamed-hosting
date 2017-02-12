@@ -24,7 +24,7 @@ class DockerCompose:
         ).communicate()[0]
         response = str(response, 'utf-8')
         host, port = response.split(':')
-        return port
+        return port.strip('\n')
 
     def up(self, daemon=True):
         response = subprocess.Popen(
@@ -50,5 +50,11 @@ class DockerCompose:
         raise NotImplementedError
         
     def restart(self, service_name=None):
-        raise NotImplementedError
+        response = subprocess.Popen(
+            ["docker-compose", "restart", service_name] if service_name
+            else ["docker-compose", "restart"], 
+            stdout=subprocess.PIPE,
+            cwd=self.path
+        ).communicate()[0]
+        return str(response, 'utf-8')
 
