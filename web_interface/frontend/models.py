@@ -12,7 +12,10 @@ class AppStates(enum.Enum):
     disabled = 'disabled'
     paused = 'paused'
 
-    err_hook_not_found = 'hooks.json not fount'
+    deploy_needed = 'first_run_waiting'
+    delete_needed = 'delete_needed'
+
+    err_hook_not_found = 'hooks.json not found'
     err_launch_crashed = 'launch has crashed'
 
 
@@ -53,3 +56,11 @@ class App(models.Model):
         if len(self.repo_url) <= limit:
             return self.repo_url
         return str(self.repo_url)[:limit - 3] + '...'
+
+    def as_dict(self):
+        exposed_fields = ('id', 'name', 'repo_url', 'app_type', 'app_path', 'desired_state')
+        return {field: getattr(self, field) for field in exposed_fields}
+
+
+class Auth:
+    pass

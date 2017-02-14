@@ -12,6 +12,7 @@ from django.db.models import Q
 
 from .forms import LoginOrRegisterForm, NewAppForm
 from . import models
+from .utils import debug_only, post_only, authenticated_only
 
 # Create your views here.
 
@@ -88,10 +89,8 @@ class Dashboard:
 class Api:
 
     @staticmethod
+    @debug_only
     def get_all_apps(request):
-        if not settings.DEBUG:
-            return HttpResponseBadRequest()
-
         apps = models.App.objects.all()
         apps = [{
             'id': app.id,
@@ -108,56 +107,42 @@ class Api:
         )
 
     @staticmethod
-    def get_apps_to_enable(request):
-        if not settings.DEBUG and request.method != 'POST':
-            return HttpResponseBadRequest()
-
-        key_digest = hashlib.sha512(request.POST.get('key', b''))
-        if not settings.DEBUG and key_digest != settings.HOSTING_DAEMON_SECRET:
-            return HttpResponseBadRequest()
-
-        apps = models.App.objects.filter(
-            Q(desired_state=models.AppStates.enabled),
-            ~Q(current_state=models.AppStates.enabled)
-        )
-        apps = [{
-            'id': app.id,
-            'name': app.name,
-            'repo_url': app.repo_url,
-            'app_type': app.app_type,
-            'app_path': app.app_path,
-            'app_url': app.app_url
-        } for app in apps]
+    @authenticated_only
+    def _filter_apps(*q_filters):
+        apps = models.App.objects.filter(*q_filters)
+        apps = [app.as_dict() for app in apps]
         return JsonResponse({'response': apps})
 
     @staticmethod
+    def get_apps_to_enable(request):
+        return Api._filter_apps(
+            Q(desired_state=models.AppStates.enabled),
+            ~Q(current_state=models.AppStates.enabled)
+        )
+
+    @staticmethod
     def get_apps_to_disable(request):
-        if not settings.DEBUG and request.method != 'POST':
-            return HttpResponseBadRequest()
-
-        key_digest = hashlib.sha512(request.POST.get('key', b''))
-        if not settings.DEBUG and key_digest != settings.HOSTING_DAEMON_SECRET:
-            return HttpResponseBadRequest()
-
-        apps = models.App.objects.filter(
+        return Api._filter_apps(
             Q(desired_state=models.AppStates.disabled),
             ~Q(current_state=models.AppStates.disabled)
         )
-        apps = [{
-            'id': app.id,
-            'name': app.name,
-            'repo_url': app.repo_url,
-            'app_type': app.app_type,
-            'app_path': app.app_path,
-            'app_url': app.app_url
-        } for app in apps]
-        return JsonResponse(apps)
 
     @staticmethod
-    def set_apps_status(request):
-        if not settings.DEBUG and request.method != 'POST':
-            return HttpResponseBadRequest()
+    def get_apps_to_deploy(request):
+        return Api._filter_apps(
+            Q(current_state=models.AppStates.deploy_needed)
+        )
 
+    @staticmethod
+    def get_apps_to_delete(request):
+        return Api._filter_apps(
+            Q(current_state=models.AppStates.delete_needed)
+        )
+
+    @staticmethod
+    @post_only
+    @authenticated_only
+    def set_apps_status(request):
         key_digest = hashlib.sha512(request.POST.get('key', b''))
         if not settings.DEBUG and key_digest != settings.HOSTING_DAEMON_SECRET:
             return HttpResponseBadRequest()
