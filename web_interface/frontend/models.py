@@ -33,7 +33,7 @@ class App(models.Model):
     app_type = models.CharField(max_length=128)
     app_path = models.CharField(max_length=4096, null=True)
     app_url = models.CharField(max_length=4096, null=True)
-    desired_state = models.CharField(max_length=128, default=AppStates.enabled)
+    desired_state = models.CharField(max_length=128, default=AppStates.deploy_needed)
     current_state = models.CharField(max_length=128, null=True)
 
     restart_required = models.BooleanField(default=False)
@@ -60,7 +60,3 @@ class App(models.Model):
     def as_dict(self):
         exposed_fields = ('id', 'name', 'repo_url', 'app_type', 'app_path', 'desired_state')
         return {field: getattr(self, field) for field in exposed_fields}
-
-
-class Auth:
-    pass

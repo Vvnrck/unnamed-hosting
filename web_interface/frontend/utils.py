@@ -1,10 +1,9 @@
 import base64
-import hashlib
 import string
 import random
 
 from django.conf import settings
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponse
 
 
 def generate_db_user(owner_name, app_name):
@@ -44,8 +43,8 @@ def post_only(func):
 
 def authenticated_only(func):
     def wrapper(request, *args, **kwargs):
-        key_digest = hashlib.sha512(request.POST.get('key', b''))
-        if not settings.DEBUG and key_digest != settings.HOSTING_DAEMON_SECRET:
-            return HttpResponseBadRequest()
-        return func(request, *args, **kwargs)
+        if request.user.is_authenticated:
+            return func(request, *args, **kwargs)
+        else:
+            return HttpResponse(content=b'{"error": "login_required"}')
     return wrapper

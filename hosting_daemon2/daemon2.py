@@ -1,22 +1,20 @@
 import sys
-import json
-import urllib.request
+import settings
 
 from apps import create_app, BaseApp
 from nginx import make_nginx_running, restart_nginx
 from docker_compose import DockerCompose
+from db_api import RemoteHostingDatabase
 
-API_BASE = 'http://localhost:8888/api'
-API_SHOULD_ENABLE_APPS = API_BASE + '/apps-to-enable'
 
-        
+communicator = RemoteHostingDatabase(lambda: ('admin', 'admin'), settings)
+
+
 def get_apps_to_enable():
-    response = urllib.request.urlopen(API_SHOULD_ENABLE_APPS).read()
-    response = str(response, 'utf-8')
-    response = json.loads(response)
+    response = communicator.get_apps_to_enable()
     apps = response.get('response', [])
     return [create_app(app) for app in apps]
-    
+
 
 def stop_all_apps():
     app_home = BaseApp.APPS_HOME
@@ -26,8 +24,8 @@ def stop_all_apps():
     for compose in composers:
         print('Stopping', str(compose.path))
         compose.stop()
-    
-        
+
+
 if __name__ == '__main__':
     if 'enable' in sys.argv:
         apps = get_apps_to_enable()
@@ -40,10 +38,9 @@ if __name__ == '__main__':
             # app.docker_compose.up()
             print(app.exposed_port)
         make_nginx_running(apps)
-        
+
     if 'disable' in sys.argv:
         stop_all_apps()
-        
+
     if 'restart_nginx' in sys.argv:
         restart_nginx()
-

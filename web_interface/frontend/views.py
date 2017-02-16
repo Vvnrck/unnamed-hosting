@@ -1,8 +1,6 @@
-import hashlib
 import json
 
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
 
 from django.core.urlresolvers import reverse
 from django.views.generic import FormView, TemplateView
@@ -10,7 +8,6 @@ from django.http import (HttpResponseRedirect, HttpResponseBadRequest,
                          JsonResponse, HttpResponse)
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from django.conf import settings
 from django.db.models import Q
 
 from .forms import LoginOrRegisterForm, NewAppForm
@@ -95,13 +92,6 @@ class Api:
     @staticmethod
     @csrf_exempt
     def login(request):
-        """
-        post = Request('http://127.0.0.1:8000/api/login', urlencode({'username': 'admin', 'password': 'admin'}).encode())
-        post_resp = urlopen(post)
-        post_resp.getheaders()
-        >>> 'Set-Cookie', 'sessionid=jpz3asu47scnc6kdy2wg3cbmyc8q2853; expires=Wed, 01-Mar-2017 22:10:28 GMT; HttpOnly; Max-Age=1209600; Path=/')
-
-        """
         if request.method == 'POST':
             username = request.POST.get('username', '')
             password = request.POST.get('password', '')
@@ -136,7 +126,7 @@ class Api:
         return JsonResponse({'response': apps})
 
     @staticmethod
-    @login_required
+    @authenticated_only
     def get_apps_to_enable(request):
         return Api._filter_apps(
             Q(desired_state=models.AppStates.enabled),
@@ -144,6 +134,7 @@ class Api:
         )
 
     @staticmethod
+    @authenticated_only
     def get_apps_to_disable(request):
         return Api._filter_apps(
             Q(desired_state=models.AppStates.disabled),
@@ -151,32 +142,33 @@ class Api:
         )
 
     @staticmethod
+    @authenticated_only
     def get_apps_to_deploy(request):
         return Api._filter_apps(
             Q(current_state=models.AppStates.deploy_needed)
         )
 
     @staticmethod
+    @authenticated_only
     def get_apps_to_delete(request):
         return Api._filter_apps(
             Q(current_state=models.AppStates.delete_needed)
         )
 
     @staticmethod
+    @csrf_exempt
     @post_only
     @authenticated_only
     def set_apps_status(request):
-        key_digest = hashlib.sha512(request.POST.get('key', b''))
-        if not settings.DEBUG and key_digest != settings.HOSTING_DAEMON_SECRET:
-            return HttpResponseBadRequest()
-
+        """ Receive JSON string like [{name: 'Name', current_state: 'enabled'}, ...]
+        """
         updates = request.POST.get('updates') or request.GET.get('updates')
         if updates is None:
             return HttpResponseBadRequest()
 
         updates = json.loads(updates, encoding='utf-8')
         for update in updates:
-            app = models.App.objects.get(id=update['id'])
+            app = models.App.objects.get(name=update['name'])
             app.current_state = update['current_state']
             app.save()
 
