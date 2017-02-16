@@ -1,6 +1,9 @@
 import hashlib
 import json
 
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
 from django.core.urlresolvers import reverse
 from django.views.generic import FormView, TemplateView
 from django.http import (HttpResponseRedirect, HttpResponseBadRequest,
@@ -41,6 +44,7 @@ class LoginOrRegisterView(FormView):
         if user is not None:
             login(self.request, user)
             return HttpResponseRedirect(reverse('dashboard'))
+        return HttpResponseRedirect(reverse('dashboard'))
 
 
 class Dashboard:
@@ -89,6 +93,25 @@ class Dashboard:
 class Api:
 
     @staticmethod
+    @csrf_exempt
+    def login(request):
+        """
+        post = Request('http://127.0.0.1:8000/api/login', urlencode({'username': 'admin', 'password': 'admin'}).encode())
+        post_resp = urlopen(post)
+        post_resp.getheaders()
+        >>> 'Set-Cookie', 'sessionid=jpz3asu47scnc6kdy2wg3cbmyc8q2853; expires=Wed, 01-Mar-2017 22:10:28 GMT; HttpOnly; Max-Age=1209600; Path=/')
+
+        """
+        if request.method == 'POST':
+            username = request.POST.get('username', '')
+            password = request.POST.get('password', '')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return HttpResponse(status=201)
+        return HttpResponseBadRequest()
+
+    @staticmethod
     @debug_only
     def get_all_apps(request):
         apps = models.App.objects.all()
@@ -107,13 +130,13 @@ class Api:
         )
 
     @staticmethod
-    @authenticated_only
     def _filter_apps(*q_filters):
         apps = models.App.objects.filter(*q_filters)
         apps = [app.as_dict() for app in apps]
         return JsonResponse({'response': apps})
 
     @staticmethod
+    @login_required
     def get_apps_to_enable(request):
         return Api._filter_apps(
             Q(desired_state=models.AppStates.enabled),
