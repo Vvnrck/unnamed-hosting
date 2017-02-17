@@ -79,6 +79,15 @@ class Dashboard:
             return HttpResponse(status=201)
 
     @staticmethod
+    def request_logs_view(request):
+        app_id = request.POST.get('app_id')
+        lr = models.LogRequest.get_or_create_log_request(app_id)
+        if lr.log_uploaded:
+            pass
+        else:
+            pass
+
+    @staticmethod
     def enable_app(request, *args, **kwargs):
         pass
 
@@ -173,6 +182,11 @@ class Api:
             app.save()
 
         return HttpResponse(status=201)
+
+    @staticmethod
+    @authenticated_only
+    def get_log_requests(request):
+        pass
 
     @staticmethod
     @csrf_exempt
