@@ -1,5 +1,7 @@
 import enum
+import pathlib
 
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -60,3 +62,37 @@ class App(models.Model):
     def as_dict(self):
         exposed_fields = ('id', 'name', 'repo_url', 'app_type', 'app_path', 'desired_state')
         return {field: getattr(self, field) for field in exposed_fields}
+
+
+class LogRequest(models.Model):
+    app = models.OneToOneField(App)
+    log_uploaded = models.BooleanField(default=False)
+
+    @staticmethod
+    def get_or_create_log_request(app_id):
+        app = App.objects.get(id=app_id)
+        folder = pathlib.Path(settings.APP_LOGS_ROOT) / app.app_path
+        if not folder.exists():
+            folder.mkdir(parents=True)
+        lr, _ = LogRequest.objects.get_or_create(app=app)
+        return lr
+
+    @property
+    def log_file_path(self):
+        return pathlib.Path(settings.APP_LOGS_ROOT) / self.app.app_path / 'logs.txt'
+
+    def upload_file(self, binary_data):
+        with self.log_file_path.open(mode='w') as log:
+            log.write(binary_data)
+        self.log_uploaded = True
+        self.save()
+
+    def read_file(self):
+        if not self.log_uploaded:
+            return None
+
+        path = self.log_file_path
+        with path.open(mode='r') as log:
+            data = log.read()
+        self.log_uploaded = False
+        return data

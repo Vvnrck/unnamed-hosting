@@ -173,3 +173,13 @@ class Api:
             app.save()
 
         return HttpResponse(status=201)
+
+    @staticmethod
+    @csrf_exempt
+    @authenticated_only
+    def post_logs(request):
+        log = request.POST.get('log')
+        app_id = request.POST.get('app_id')
+        lr = models.LogRequest.get_or_create_log_request(app_id)
+        lr.upload_file(log)
+        return HttpResponse(status=200)
