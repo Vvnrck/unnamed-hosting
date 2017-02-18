@@ -3,6 +3,8 @@ import json
 import shutil
 import subprocess
 
+import settings
+
 from pathlib import Path
 from docker_compose import DockerCompose
 
@@ -28,7 +30,7 @@ class BaseApp:
         self.name = json_description['name']
         self.app_type = json_description['app_type']
         self.path = self.APPS_HOME / json_description['app_path']
-        self.app_url = json_description['app_url']
+        self.app_url = settings.APP_URL_TEMPLATE.format(self.name)
         self.repo_url = json_description['repo_url']
 
         self.docker_file = self.DOCKER_TEMPLATES / 'Dockerfile'
@@ -39,7 +41,7 @@ class BaseApp:
 
     @property
     def is_running(self):
-        return bool(self.docker_compose.ps())
+        return self.docker_compose.is_up()  # bool(self.docker_compose.ps())
 
     @property
     def exposed_port(self):

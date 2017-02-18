@@ -68,7 +68,7 @@ class RemoteHostingDatabase:
             return self.do_request(*args, **kwargs)
         except (URLError, HTTPError) as e:
             logger.error('Error occured: %s', repr(e))
-            return {}
+            return None
 
     def get_apps_to_enable(self):
         return self.do_request_ex(self.settings.API_METHOD['apps-to-enable'])
@@ -78,6 +78,24 @@ class RemoteHostingDatabase:
 
     def get_apps_to_deploy(self):
         return self.do_request_ex(self.settings.API_METHOD['apps-to-deploy'])
+
+    def get_should_be_running_apps(self):
+        return self.do_request_ex(self.settings.API_METHOD['apps-should-be-running'])
+
+    def set_apps_status(self, apps):
+        updates = [{
+            'name': app.name,
+            'url': app.app_url,
+            'current_state': 'AppStates.enabled' if app.is_running 
+                             else 'AppStates.disabled'
+        } for app in apps]
+        updates = json.dumps(updates)
+        logger.debug('Updating DB apps status with %s', updates)
+        resp = self.do_request_ex(
+            self.settings.API_METHOD['set-apps-status'],
+            urlencode({'updates': updates}).encode()
+        )
+        return resp.get('response') == 'success'
 
 
 if __name__ == '__main__':

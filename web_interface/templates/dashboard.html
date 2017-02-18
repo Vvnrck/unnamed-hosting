@@ -14,7 +14,7 @@
                     <p class="card-text">Repo: <a href="{{ app.repo_url }}">{{ app.shorter_repo_url }}</a> <br/>
                     Status: {{ app.current_state|default_if_none:"disabled" }}</p>
 
-                    <a href="{{ app.app_url|default_if_none:"javascript:void(0)" }}" class="btn btn-outline-primary">Open app</a>
+                    <a href="//{{ app.app_url|default_if_none:"javascript:void(0)" }}" target="_blank" class="btn btn-outline-primary">Open app</a>
                     <a href="" class="btn btn-outline-primary">Logs</a>
                     <a href="" class="btn btn-outline-success">Edit</a>
                     <button class="btn btn-outline-warning">Stop</button>

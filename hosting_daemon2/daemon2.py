@@ -17,6 +17,15 @@ def get_apps_to_enable():
 
 
 def stop_all_apps():
+    response = communicator.get_should_be_running_apps()
+    apps = response.get('response', [])
+    apps = [create_app(app) for app in apps]
+    for app in apps:
+        app.docker_compose.stop()
+    return apps
+
+
+def force_stop_all_apps():
     app_home = BaseApp.APPS_HOME
     app_paths = app_home.glob('*/*')
     app_paths = filter(lambda p: p.is_dir(), app_paths)
@@ -38,9 +47,11 @@ if __name__ == '__main__':
             # app.docker_compose.up()
             print(app.exposed_port)
         make_nginx_running(apps)
+        communicator.set_apps_status(apps)
 
     if 'disable' in sys.argv:
-        stop_all_apps()
+        apps = stop_all_apps()
+        communicator.set_apps_status(apps)
 
     if 'restart_nginx' in sys.argv:
         restart_nginx()

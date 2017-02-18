@@ -154,7 +154,8 @@ class Api:
     @authenticated_only
     def get_apps_to_deploy(request):
         return Api._filter_apps(
-            Q(current_state=models.AppStates.deploy_needed)
+            Q(desired_state=models.AppStates.deploy_needed),
+            ~Q(current_state=models.AppStates.enabled)
         )
 
     @staticmethod
@@ -162,6 +163,13 @@ class Api:
     def get_apps_to_delete(request):
         return Api._filter_apps(
             Q(current_state=models.AppStates.delete_needed)
+        )
+        
+    @staticmethod
+    @authenticated_only
+    def get_should_be_running_apps(request):
+        return Api._filter_apps(
+            Q(desired_state=models.AppStates.enabled)
         )
 
     @staticmethod
@@ -179,9 +187,10 @@ class Api:
         for update in updates:
             app = models.App.objects.get(name=update['name'])
             app.current_state = update['current_state']
+            app.app_url = update['url']
             app.save()
 
-        return HttpResponse(status=201)
+        return JsonResponse({'response': 'success'})
 
     @staticmethod
     @authenticated_only

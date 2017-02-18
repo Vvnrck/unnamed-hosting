@@ -30,7 +30,8 @@ urlpatterns = [
     url(r'^api/apps-to-enable', frontend.views.Api.get_apps_to_enable),
     url(r'^api/apps-to-disable', frontend.views.Api.get_apps_to_disable),
     url(r'^api/apps-to-deploy', frontend.views.Api.get_apps_to_deploy),
-    url(r'^api/set-app-status', frontend.views.Api.set_apps_status),
+    url(r'^api/apps-should-be-running', frontend.views.Api.get_should_be_running_apps),
+    url(r'^api/set-apps-status', frontend.views.Api.set_apps_status),
 
     url(r'^debug/all-apps', frontend.views.Api.get_all_apps)
 ]

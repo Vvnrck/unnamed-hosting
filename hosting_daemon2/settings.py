@@ -5,4 +5,10 @@ API_METHOD = {
     'apps-to-enable': API_URL + '/apps-to-enable',
     'apps-to-disable': API_URL + '/apps-to-disable',
     'apps-to-deploy': API_URL + '/apps-to-deploy',
+    'set-apps-status': API_URL + '/set-apps-status',
+    'apps-should-be-running': API_URL + '/apps-should-be-running'
 }
+
+HOSTING_BASE = 'derhostar.io'
+APP_URL_TEMPLATE = '{0}.' + HOSTING_BASE
+
