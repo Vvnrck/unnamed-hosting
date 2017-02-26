@@ -81,6 +81,9 @@ class RemoteHostingDatabase:
 
     def get_should_be_running_apps(self):
         return self.do_request_ex(self.settings.API_METHOD['apps-should-be-running'])
+        
+    def get_all_apps(self):
+        return self.do_request_ex(self.settings.API_METHOD['get-all-apps'])
 
     def set_apps_status(self, apps):
         updates = [{

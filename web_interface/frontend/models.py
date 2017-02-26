@@ -60,7 +60,10 @@ class App(models.Model):
         return str(self.repo_url)[:limit - 3] + '...'
 
     def as_dict(self):
-        exposed_fields = ('id', 'name', 'repo_url', 'app_type', 'app_path', 'desired_state')
+        exposed_fields = (
+            'id', 'name', 'repo_url', 'app_type', 'app_path',
+            'desired_state', 'current_state'
+        )
         return {field: getattr(self, field) for field in exposed_fields}
 
 

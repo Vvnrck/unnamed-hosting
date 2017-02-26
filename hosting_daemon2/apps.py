@@ -38,6 +38,11 @@ class BaseApp:
         self.docker_compose = DockerCompose(self.path)
 
         self._project_hooks = None
+        
+    def __repr__(self):
+        return '{}(id={}, name={}, type={})'.format(
+            type(self).__name__, 'NA', self.name, self.app_type
+        )
 
     @property
     def is_running(self):

@@ -3,6 +3,9 @@ import re
 import subprocess
 import sys
 
+from datetime import datetime
+from itertools import dropwhile, takewhile
+
 
 logger = logging.getLogger('compose')
 logger.setLevel(logging.DEBUG)
@@ -20,7 +23,7 @@ class DockerCompose:
 
     def ps(self):
         response = subprocess.Popen(
-            ["docker-compose", "ps"], 
+            ['docker-compose', 'ps'], 
             stdout=subprocess.PIPE,
             cwd=self.path
         ).communicate()[0]
@@ -41,7 +44,7 @@ class DockerCompose:
     def port(self, service_name, private_port):
         logger.debug('PORT at %s', self.path)
         response = subprocess.Popen(
-            ["docker-compose", "port", service_name, private_port], 
+            ['docker-compose', 'port', service_name, private_port], 
             stdout=subprocess.PIPE,
             cwd=self.path
         ).communicate()[0]
@@ -52,8 +55,8 @@ class DockerCompose:
     def up(self, daemon=True):
         logger.debug('UP at %s', self.path)
         response = subprocess.Popen(
-            ["docker-compose", "up", "-d"] if daemon
-            else ["docker-compose", "up"], 
+            ['docker-compose', 'up', '-d'] if daemon
+            else ['docker-compose', 'up'], 
             stdout=subprocess.PIPE,
             cwd=self.path
         ).communicate()[0]
@@ -62,7 +65,7 @@ class DockerCompose:
     def stop(self):
         logger.debug('STOP at %s', self.path)
         response = subprocess.Popen(
-            ["docker-compose", "stop"], 
+            ['docker-compose', 'stop'], 
             stdout=subprocess.PIPE,
             cwd=self.path
         ).communicate()[0]
@@ -77,8 +80,37 @@ class DockerCompose:
     def restart(self, service_name=None):
         logger.debug('RESTART at %s', self.path)
         response = subprocess.Popen(
-            ["docker-compose", "restart", service_name] if service_name
-            else ["docker-compose", "restart"], 
+            ['docker-compose', 'restart', service_name] if service_name
+            else ['docker-compose', 'restart'], 
+            stdout=subprocess.PIPE,
+            cwd=self.path
+        ).communicate()[0]
+        return str(response, 'utf-8')
+        
+    def last_accessed(self) -> 'minutes ago':
+        logs = self.logs(timestamps=False, tail=1)
+        logs = [log for log in logs.split('\n') if log.startswith('nginx')]
+        if not logs:
+            return 0
+        log = logs[-1]
+        log = dropwhile(lambda c: c != '[', log)
+        log = takewhile(lambda c: c != ']', log)
+        last_access_date = datetime.strptime(
+            ''.join(log), '[%d/%b/%Y:%H:%M:%S %z'
+        )
+        now = datetime.now(tz=last_access_date.tzinfo)
+        return (now - last_access_date).seconds // 60  
+
+    def logs(self, no_color=True, timestamps=True, tail=1000):
+        logger.debug('LOGS at %s (%s lines)', self.path, tail)
+        call_args = list(filter(bool, [
+            'docker-compose', 'logs',
+            '--no-color' if no_color else None,
+            '--timestamps' if timestamps else None, 
+            '--tail={}'.format(tail)
+        ]))
+        response = subprocess.Popen(
+            call_args,
             stdout=subprocess.PIPE,
             cwd=self.path
         ).communicate()[0]

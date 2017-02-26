@@ -36,7 +36,29 @@ def force_stop_all_apps():
 
 
 if __name__ == '__main__':
-    if 'enable' in sys.argv:
+    if 'v2_all' in sys.argv:
+        response = communicator.get_all_apps()
+        apps = response.get('response', [])
+        apps = [create_app(app) for app in apps]
+        print(apps)
+        
+    elif 'first_run' in sys.argv:
+        apps = communicator.get_apps_to_deploy()
+        apps = apps.get('response', [])
+        apps = [create_app(app) for app in apps]
+        for app in apps:
+            app.prepare_app_folders()
+            app.git_clone_app_code()
+            app.make_docker_files()
+            app.start_app(is_daemon=True)
+            app.docker_compose.stop()
+            app.docker_compose.up()
+            print(app.exposed_port)
+        make_nginx_running(apps)
+        communicator.set_apps_status(apps)
+
+
+    elif 'enable' in sys.argv:
         apps = get_apps_to_enable()
         for app in apps:
             app.prepare_app_folders()
@@ -49,9 +71,13 @@ if __name__ == '__main__':
         make_nginx_running(apps)
         communicator.set_apps_status(apps)
 
-    if 'disable' in sys.argv:
+    elif 'disable' in sys.argv:
         apps = stop_all_apps()
         communicator.set_apps_status(apps)
 
-    if 'restart_nginx' in sys.argv:
+    elif 'restart_nginx' in sys.argv:
         restart_nginx()
+        
+    elif 'pause_unused' in sys.argv:
+        pause_unused_apps()
+

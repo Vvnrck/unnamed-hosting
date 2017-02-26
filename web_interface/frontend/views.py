@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -15,6 +16,9 @@ from . import models
 from .utils import debug_only, post_only, authenticated_only
 
 # Create your views here.
+
+
+logger = logging.getLogger('django.server')
 
 
 class LoginOrRegisterView(FormView):
@@ -57,6 +61,7 @@ class Dashboard:
                 'app_types': models.AppType,
                 'new_app_form': NewAppForm()
             })
+            logger.debug('%s entered dashboard', self.request.user)
             return context
 
     class NewAppView(FormView):
@@ -111,20 +116,11 @@ class Api:
         return HttpResponseBadRequest()
 
     @staticmethod
-    @debug_only
+    @authenticated_only
     def get_all_apps(request):
         apps = models.App.objects.all()
-        apps = [{
-            'id': app.id,
-            'repo_url': app.repo_url,
-            'app_status': app.current_state,
-            'desired_status': app.desired_state,
-            'app_type': app.app_type,
-            'app_path': app.app_path,
-            'app_url': app.app_url
-        } for app in apps]
         return JsonResponse(
-            {'response': apps},
+            {'response': [app.as_dict() for app in apps]},
             json_dumps_params={'indent': 4, 'separators': (',', ': ')}
         )
 

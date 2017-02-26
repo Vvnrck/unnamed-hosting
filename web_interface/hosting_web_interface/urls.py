@@ -32,6 +32,5 @@ urlpatterns = [
     url(r'^api/apps-to-deploy', frontend.views.Api.get_apps_to_deploy),
     url(r'^api/apps-should-be-running', frontend.views.Api.get_should_be_running_apps),
     url(r'^api/set-apps-status', frontend.views.Api.set_apps_status),
-
-    url(r'^debug/all-apps', frontend.views.Api.get_all_apps)
+    url(r'^api/all-apps', frontend.views.Api.get_all_apps)
 ]
