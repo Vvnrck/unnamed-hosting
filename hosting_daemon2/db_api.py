@@ -99,6 +99,18 @@ class RemoteHostingDatabase:
             urlencode({'updates': updates}).encode()
         )
         return resp.get('response') == 'success'
+        
+    def post_logs(self, app, app_logs):
+        logger.debug('Sending logs for %s', str(app))
+        resp = self.do_request_ex(
+            self.settings.API_METHOD['post-logs'],
+            urlencode({
+                'app_name': app.name,
+                'logs': app_logs
+            }).encode()
+        )
+        return resp.get('response') == 'success'
+        
 
 
 if __name__ == '__main__':

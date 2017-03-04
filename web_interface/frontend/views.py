@@ -85,20 +85,16 @@ class Dashboard:
 
     @staticmethod
     def request_logs_view(request):
-        app_id = request.POST.get('app_id')
-        lr = models.LogRequest.get_or_create_log_request(app_id)
-        if lr.log_uploaded:
-            pass
-        else:
-            pass
-
-    @staticmethod
-    def enable_app(request, *args, **kwargs):
-        pass
-
-    @staticmethod
-    def disable_app(request, *args, **kwargs):
-        pass
+        app_id = request.GET.get('app_id')
+        app = models.App.objects.get(pk=app_id)
+        if app.owner != request.user:
+            # TODO: add message
+            return HttpResponseRedirect(reverse('dashboard'))
+        with app.log_file_path.open(mode='rb') as logs:
+            response = HttpResponse(content=logs)
+            response['Content-Type'] = 'text/plain'
+            response['Content-Disposition'] = 'attachment; filename="logs.txt"'
+            return response
 
 
 class Api:
@@ -184,21 +180,25 @@ class Api:
             app = models.App.objects.get(name=update['name'])
             app.current_state = update['current_state']
             app.app_url = update['url']
+            
+            print(app.desired_state == models.AppStates.deploy_needed)
+            if app.desired_state == str(models.AppStates.deploy_needed):
+                app.desired_state = models.AppStates.enabled
+            print(app.desired_state, models.AppStates.deploy_needed)
             app.save()
 
         return JsonResponse({'response': 'success'})
 
     @staticmethod
-    @authenticated_only
-    def get_log_requests(request):
-        pass
-
-    @staticmethod
     @csrf_exempt
     @authenticated_only
-    def post_logs(request):
-        log = request.POST.get('log')
-        app_id = request.POST.get('app_id')
-        lr = models.LogRequest.get_or_create_log_request(app_id)
-        lr.upload_file(log)
-        return HttpResponse(status=200)
+    def accept_logs(request):
+        app_name = request.POST['app_name']
+        try:
+            app = models.App.objects.get(name=app_name)
+            with app.log_file_path.open(mode='w') as logs:
+                logs.write(request.POST['logs'])
+        except models.App.DoesNotExist:
+            pass
+        return JsonResponse({'response': 'success'})
+

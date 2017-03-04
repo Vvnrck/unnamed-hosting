@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^dashboard$', login_required(frontend.views.Dashboard.DashboardView.as_view()), name='dashboard'),
     url(r'^new-app$', login_required(frontend.views.Dashboard.NewAppView.as_view()), name='new-app'),
     url(r'^delete-app$', login_required(frontend.views.Dashboard.DeleteAppView.as_view()), name='delete-app'),
+    url(r'^get-logs', login_required(frontend.views.Dashboard.request_logs_view), name='get-app-logs'),
 
     url(r'^api/login', frontend.views.Api.login),
     url(r'^api/apps-to-enable', frontend.views.Api.get_apps_to_enable),
@@ -32,5 +33,6 @@ urlpatterns = [
     url(r'^api/apps-to-deploy', frontend.views.Api.get_apps_to_deploy),
     url(r'^api/apps-should-be-running', frontend.views.Api.get_should_be_running_apps),
     url(r'^api/set-apps-status', frontend.views.Api.set_apps_status),
-    url(r'^api/all-apps', frontend.views.Api.get_all_apps)
+    url(r'^api/all-apps', frontend.views.Api.get_all_apps),
+    url(r'^api/post-logs', frontend.views.Api.accept_logs)
 ]

@@ -7,7 +7,8 @@ API_METHOD = {
     'apps-to-deploy': API_URL + '/apps-to-deploy',
     'set-apps-status': API_URL + '/set-apps-status',
     'apps-should-be-running': API_URL + '/apps-should-be-running',
-    'get-all-apps': API_URL + '/all-apps'
+    'get-all-apps': API_URL + '/all-apps',
+    'post-logs': API_URL + '/post-logs'
 }
 
 HOSTING_BASE = 'derhostar.io'

@@ -57,7 +57,6 @@ if __name__ == '__main__':
         make_nginx_running(apps)
         communicator.set_apps_status(apps)
 
-
     elif 'enable' in sys.argv:
         apps = get_apps_to_enable()
         for app in apps:
@@ -74,10 +73,22 @@ if __name__ == '__main__':
     elif 'disable' in sys.argv:
         apps = stop_all_apps()
         communicator.set_apps_status(apps)
+        
+    elif 'force_disable' in sys.argv:
+        force_stop_all_apps()
 
     elif 'restart_nginx' in sys.argv:
         restart_nginx()
         
     elif 'pause_unused' in sys.argv:
         pause_unused_apps()
+        
+    elif 'post_logs' in sys.argv:
+        response = communicator.get_should_be_running_apps()
+        apps = response.get('response', [])
+        apps = [create_app(app) for app in apps]
+        apps = [app for app in apps if app.is_running]
+        for app in apps:
+            logs = app.docker_compose.logs()
+            communicator.post_logs(app, logs)
 

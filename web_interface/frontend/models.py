@@ -28,7 +28,7 @@ class AppType(enum.Enum):
 
 
 class App(models.Model):
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User)  # make nullable. Don't delete apps
 
     name = models.CharField(max_length=128, unique=True)
     repo_url = models.CharField(max_length=4096)
@@ -50,7 +50,11 @@ class App(models.Model):
             app_type=app_type,
             app_path=utils.generate_app_path(owner.username, app_name)
         )
+        
+        with app.log_file_path.open(mode='w') as logs:
+            logs.write('no one has submitted logs yet')
         app.save()
+        return app
 
     @property
     def shorter_repo_url(self):
@@ -58,6 +62,17 @@ class App(models.Model):
         if len(self.repo_url) <= limit:
             return self.repo_url
         return str(self.repo_url)[:limit - 3] + '...'
+        
+    @property
+    def log_file_path(self) -> pathlib.Path:
+        return self.log_file_dir / 'logs.txt'
+        
+    @property
+    def log_file_dir(self) -> pathlib.Path:
+        dir_ = pathlib.Path(settings.APP_LOGS_ROOT) / self.app_path
+        if not dir_.exists():
+            dir_.mkdir(parents=True)
+        return pathlib.Path(settings.APP_LOGS_ROOT) / self.app_path 
 
     def as_dict(self):
         exposed_fields = (
@@ -99,3 +114,4 @@ class LogRequest(models.Model):
             data = log.read()
         self.log_uploaded = False
         return data
+
