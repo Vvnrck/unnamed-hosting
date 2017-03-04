@@ -4,7 +4,7 @@ import logging
 from django.views.decorators.csrf import csrf_exempt
 
 from django.core.urlresolvers import reverse
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, View
 from django.http import (HttpResponseRedirect, HttpResponseBadRequest,
                          JsonResponse, HttpResponse)
 from django.contrib.auth.models import User
@@ -64,6 +64,7 @@ class Dashboard:
             logger.debug('%s entered dashboard', self.request.user)
             return context
 
+
     class NewAppView(FormView):
         form_class = NewAppForm
 
@@ -78,10 +79,28 @@ class Dashboard:
                 )
             return HttpResponseRedirect(reverse('dashboard'))
 
+
     class DeleteAppView(FormView):
         def post(self, request, *args, **kwargs):
             models.App.objects.get(pk=request.POST['id']).delete()
-            return HttpResponse(status=201)
+            return HttpResponse(status=204)
+
+
+    class StopAppView(View):
+        def post(self, request, *args, **kwargs):
+            app = models.App.objects.get(pk=request.POST['id'])
+            app.desired_state = models.AppStates.disabled
+            app.save()
+            return HttpResponse(status=204)
+
+
+    class ResumeAppView(View):
+        def post(self, request, *args, **kwargs):
+            app = models.App.objects.get(pk=request.POST['id'])
+            app.desired_state = models.AppStates.enabled
+            app.save()
+            return HttpResponse(status=204)
+
 
     @staticmethod
     def request_logs_view(request):
@@ -108,7 +127,7 @@ class Api:
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return HttpResponse(status=201)
+                return HttpResponse(status=204)
         return HttpResponseBadRequest()
 
     @staticmethod
