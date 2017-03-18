@@ -55,6 +55,12 @@ class App(models.Model):
             logs.write('no one has submitted logs yet')
         app.save()
         return app
+        
+    def __str__(self):
+        return '{} (id={}, owner={}, curst={}, desst={})'.format(
+            self.name, str(self.id), self.owner,
+            self.current_state, self.desired_state
+        )
 
     @property
     def shorter_repo_url(self):

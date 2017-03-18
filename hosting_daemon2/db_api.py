@@ -86,6 +86,9 @@ class RemoteHostingDatabase:
         return self.do_request_ex(self.settings.API_METHOD['get-all-apps'])
 
     def set_apps_status(self, apps):
+        if not apps:
+            return True
+    
         updates = [{
             'name': app.name,
             'url': app.app_url,

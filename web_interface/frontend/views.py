@@ -200,10 +200,8 @@ class Api:
             app.current_state = update['current_state']
             app.app_url = update['url']
             
-            print(app.desired_state == models.AppStates.deploy_needed)
             if app.desired_state == str(models.AppStates.deploy_needed):
                 app.desired_state = models.AppStates.enabled
-            print(app.desired_state, models.AppStates.deploy_needed)
             app.save()
 
         return JsonResponse({'response': 'success'})

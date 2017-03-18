@@ -35,7 +35,7 @@ def _get_ip_address(ifname):
     )[20:24])
 
 
-def _prepare_conf_file(apps):
+def _prepare_conf(apps):
     upstreams = []
     servers = []
     host_ip = _get_ip_address(b'docker0')
@@ -54,20 +54,28 @@ def _prepare_conf_file(apps):
     
     upstreams = '\n'.join(upstreams)
     servers = '\n'.join(servers)
-    
+    return '{}\n{}'.format(upstreams, servers)
+
+
+def _read_conf_file():
+    with SETTINGS_FILE.open(mode='r') as conf:
+        return conf.read()
+
+
+def _write_conf_file(confdata):
     with SETTINGS_FILE.open(mode='w') as conf:
-        conf.write(upstreams)
-        conf.write('\n')
-        conf.write(servers)
+        conf.write(confdata)
         
 
 def make_nginx_running(apps):
-    _prepare_conf_file(apps)
-    docker_nginx = DockerCompose(path=NGINX_PATH)
-    if docker_nginx.ps():
-        docker_nginx.restart()
-    else:
-        docker_nginx.up()
+    conf = _prepare_conf(apps)
+    if conf != _read_conf_file():
+        _write_conf_file(conf)
+        docker_nginx = DockerCompose(path=NGINX_PATH)
+        if docker_nginx.ps():
+            docker_nginx.restart()
+        else:
+            docker_nginx.up()
         
 
 def restart_nginx():
