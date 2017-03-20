@@ -16,6 +16,9 @@ handler.setFormatter(fmt)
 logger.addHandler(handler)
 
 
+class DockerParsingError(Exception): pass
+
+
 class DockerCompose:
     def __init__(self, path):
         self.path = str(path)
@@ -49,8 +52,12 @@ class DockerCompose:
             cwd=self.path
         ).communicate()[0]
         response = str(response, 'utf-8')
-        host, port = response.split(':')
-        return port.strip('\n')
+        try:
+            host, port = response.split(':')
+            return port.strip('\n')
+        except ValueError:
+            logger.warning('Looks like %s is down', self.path)
+            raise DockerParsingError('Looks like %s is down' % self.path)
 
     def up(self, daemon=True):
         logger.debug('UP at %s', self.path)

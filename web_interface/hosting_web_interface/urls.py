@@ -24,12 +24,13 @@ urlpatterns = [
     url(r'^$', frontend.views.LoginOrRegisterView.as_view(), name='login'),
     
     # sorry PEP8
-    url(r'^dashboard$',  login_required(frontend.views.Dashboard.DashboardView.as_view()), name='dashboard'),
-    url(r'^new-app$',    login_required(frontend.views.Dashboard.NewAppView.as_view()),    name='new-app'),
-    url(r'^delete-app$', login_required(frontend.views.Dashboard.DeleteAppView.as_view()), name='delete-app'),
-    url(r'^stop-app$',   login_required(frontend.views.Dashboard.StopAppView.as_view()),   name='stop-app'),
-    url(r'^resume-app$', login_required(frontend.views.Dashboard.ResumeAppView.as_view()), name='resume-app'),
-    url(r'^get-logs',    login_required(frontend.views.Dashboard.request_logs_view),       name='get-app-logs'),
+    url(r'^dashboard$',    login_required(frontend.views.Dashboard.DashboardView.as_view()), name='dashboard'),
+    url(r'^new-app$',      login_required(frontend.views.Dashboard.NewAppView.as_view()),    name='new-app'),
+    url(r'^delete-app$',   login_required(frontend.views.Dashboard.DeleteAppView.as_view()), name='delete-app'),
+    url(r'^stop-app$',     login_required(frontend.views.Dashboard.StopAppView.as_view()),   name='stop-app'),
+    url(r'^resume-app$',   login_required(frontend.views.Dashboard.ResumeAppView.as_view()), name='resume-app'),
+    url(r'^get-logs',      login_required(frontend.views.Dashboard.request_logs_view),       name='get-app-logs'),
+    url(r'^get-apps-list$', login_required(frontend.views.Dashboard.get_apps_list),           name='get-apps-list'),
 
     url(r'^api/login', frontend.views.Api.login),
     url(r'^api/apps-to-enable', frontend.views.Api.get_apps_to_enable),

@@ -1,0 +1,24 @@
+{% for app in apps %}
+    <div class="col-lg-6 app-col">
+        <div class="card app" data-app-id="{{ app.pk }}" data-app-name="{{ app.name }}" data-app-desired-state="{{ app.desired_state }}">
+            <div class="card-block">
+                <h3 class="card-title">{{ app.name }}</h3>
+                <h6 class="card-subtitle mb-2 text-muted">{{ app.app_type }} app</h6>
+
+                <p class="card-text">Repo: <a href="{{ app.repo_url }}">{{ app.shorter_repo_url }}</a> <br/>
+                {% if app.current_state == app.desired_state %}
+                Current Status: <span class="app-status">{{ app.current_state|default_if_none:"None" }}</span></p>
+                {% else %}
+                Current Status:  <span class="app-status">{{ app.current_state|default_if_none:"None" }}</span><br/>
+                Transition to: {{ app.desired_state|default_if_none:"None" }}</p>
+                {% endif %}
+
+                <a href="//{{ app.app_url|default_if_none:"javascript:void(0)" }}" target="_blank" class="btn btn-outline-primary">Open app</a>
+                <a href="{% url 'get-app-logs' %}?app_id={{ app.id }}" class="btn btn-outline-primary">Logs</a>
+                <button class="btn btn-outline-warning stop-app" data-url="{% url 'stop-app' %}">Stop</button>
+                <button class="btn btn-outline-success resume-app" data-url="{% url 'resume-app' %}">Resume</button>
+                <button class="delete-app btn btn-outline-danger">Delete</button>
+            </div>
+      </div>
+  </div>
+{% endfor %}

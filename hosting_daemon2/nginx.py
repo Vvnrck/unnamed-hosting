@@ -3,7 +3,7 @@ import fcntl
 import struct
 
 from pathlib import Path
-from docker_compose import DockerCompose
+from docker_compose import DockerCompose, DockerParsingError
 
 
 UPSTREAM_TEMPLATE = \
@@ -41,7 +41,11 @@ def _prepare_conf(apps):
     host_ip = _get_ip_address(b'docker0')
     
     for app in apps:
-        port = app.exposed_port
+        try:
+            port = app.exposed_port
+        except DockerParsingError:
+            continue
+
         upstreams.append(UPSTREAM_TEMPLATE.format(
             app_name=app.name,
             host_ip=host_ip,

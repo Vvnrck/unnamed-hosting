@@ -20,6 +20,7 @@
         window.app_data =  window.app_data || {};
         window.app_data.view_name = "{{ view_name|default_if_none:"0"|escapejs }}";
         window.app_data.csrf_token = $("{% csrf_token %}").val();
+        window.app_data.get_apps_url = "{% url 'get-apps-list' %}";
     </script>
 
     <div class="container">

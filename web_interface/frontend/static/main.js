@@ -35,82 +35,100 @@ window.app = {
         }
     }
     
-    $('.app').each(function () {
-        var app = getApp(this);
-        console.log(app)
-        if (app.desiredState != 'AppStates.disabled')
-            app.$resumeBtn.hide();
-        else
-            app.$stopBtn.hide();
-    })
+    function initEvents() {
+    
+        $('.app').each(function () {
+            var app = getApp(this);
+            console.log(app)
+            if (app.desiredState != 'AppStates.disabled')
+                app.$resumeBtn.hide();
+            else
+                app.$stopBtn.hide();
+        })
 
-    $('.new-app-btn').click(function (e) {
-        $('#new-app-form').show();
-        $('.new-app-btn').hide();
-    });
+        $('.new-app-btn').click(function (e) {
+            $('#new-app-form').show();
+            $('.new-app-btn').hide();
+        });
 
-    $('.delete-app').click(function (e) {
-        var app = getApp(this);
-        $('#delete-app-modal-app-name').text(app.appName);
-        $('#delete-app-modal').modal();
+        $('.delete-app').click(function (e) {
+            var app = getApp(this);
+            $('#delete-app-modal-app-name').text(app.appName);
+            $('#delete-app-modal').modal();
 
-        $('.confirm-delete-app').one('click', function (e) {
+            $('.confirm-delete-app').one('click', function (e) {
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('data-action-url'),
+                    data: {
+                        id: app.appId,
+                        csrfmiddlewaretoken: window.app_data.csrf_token
+                    }
+                });
+                $('#delete-app-modal').modal('hide');
+                app.$sel.hide();
+            })
+        });
+        
+        $('.stop-app').click(function (e) {
+            var app = getApp(this);
+            app.$stopBtn.text('Requesting...');
             $.ajax({
                 type: 'POST',
-                url: $(this).attr('data-action-url'),
+                url: $(this).attr('data-url'),
                 data: {
                     id: app.appId,
                     csrfmiddlewaretoken: window.app_data.csrf_token
+                },
+                success: function (e) {
+                    app.$stopBtn.text('Stop').hide();
+                    app.$resumeBtn.show();
+                    app.$currentStatus.text('Changing...');
+                },
+                error: function (e) {
+                    alert('Failed to stop app');
+                    app.$stopBtn.text('Stop');
                 }
             });
-            $('#delete-app-modal').modal('hide');
-            app.$sel.hide();
-        })
-    });
+        });
+        
+        $('.resume-app').click(function (e) {
+            var app = getApp(this);
+            app.$resumeBtn.text('Requesting...');
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('data-url'),
+                data: {
+                    id: app.appId,
+                    csrfmiddlewaretoken: window.app_data.csrf_token
+                },
+                success: function (e) {
+                    app.$resumeBtn.text('Resume').hide();
+                    app.$stopBtn.show();
+                    app.$currentStatus.text('Changing...');
+                },
+                error: function (e) {
+                    alert('Failed to resume app');
+                    app.$resumeBtn.text('Stop');
+                }
+            });
+        });
+        
+    } // end function initEvents()
     
-    $('.stop-app').click(function (e) {
-        var app = getApp(this);
-        app.$stopBtn.text('Requesting...');
+    initEvents();
+    setInterval(function(){
         $.ajax({
-            type: 'POST',
-            url: $(this).attr('data-url'),
-            data: {
-                id: app.appId,
-                csrfmiddlewaretoken: window.app_data.csrf_token
-            },
-            success: function (e) {
-                app.$stopBtn.text('Stop').hide();
-                app.$resumeBtn.show();
-                app.$currentStatus.text('Changing...');
-            },
-            error: function (e) {
-                alert('Failed to stop app');
-                app.$stopBtn.text('Stop');
+            type: 'GET',
+            url: window.app_data.get_apps_url,
+            success: function(data) {
+                console.log('window.app_data.get_apps_url success');
+                $('.app-col:not(.new-app-form-col)').remove();
+                $('.new-app-form-col').parent().prepend(data);
+                initEvents();
             }
         });
-    });
-    
-    $('.resume-app').click(function (e) {
-        var app = getApp(this);
-        app.$resumeBtn.text('Requesting...');
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('data-url'),
-            data: {
-                id: app.appId,
-                csrfmiddlewaretoken: window.app_data.csrf_token
-            },
-            success: function (e) {
-                app.$resumeBtn.text('Resume').hide();
-                app.$stopBtn.show();
-                app.$currentStatus.text('Changing...');
-            },
-            error: function (e) {
-                alert('Failed to resume app');
-                app.$resumeBtn.text('Stop');
-            }
-        });
-    });
+    }, 10000);
 }
 
 

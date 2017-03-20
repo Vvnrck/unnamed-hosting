@@ -10,6 +10,7 @@ from django.http import (HttpResponseRedirect, HttpResponseBadRequest,
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.db.models import Q
+from django.shortcuts import render
 
 from .forms import LoginOrRegisterForm, NewAppForm
 from . import models
@@ -115,6 +116,10 @@ class Dashboard:
             response['Content-Disposition'] = 'attachment; filename="logs.txt"'
             return response
 
+    @staticmethod
+    def get_apps_list(request):
+        apps = models.App.objects.filter(owner=request.user)
+        return render(request, '_app_list.html', {'apps': apps})
 
 class Api:
 
