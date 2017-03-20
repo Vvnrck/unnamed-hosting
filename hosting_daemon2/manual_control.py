@@ -3,7 +3,6 @@ import settings
 import sched
 
 
-import scenaries
 from apps import create_app, BaseApp
 from nginx import make_nginx_running, restart_nginx
 from docker_compose import DockerCompose
@@ -11,33 +10,6 @@ from db_api import RemoteHostingDatabase
 
 
 communicator = RemoteHostingDatabase(lambda: ('admin', 'admin'), settings)
-
-
-def periodic(scheduler, interval, action, actionargs=()):
-    scheduler.enter(interval, 1, periodic,
-                    (scheduler, interval, action, actionargs))
-    action(*actionargs)
-    
-    
-def seconds(t):
-    return t
-
-
-def minutes(t):
-    return 60 * seconds(t)
-
-    
-def hours(t):
-    return 60 * minutes(t)
-
-
-if __name__ == '__main__':
-    scheduler = sched.scheduler()
-    periodic(scheduler, seconds(20), scenaries.deploy_apps)
-    periodic(scheduler, seconds(20), scenaries.disable_apps)
-    periodic(scheduler, seconds(20), scenaries.enable_apps)
-    periodic(scheduler, minutes(10), scenaries.revisit_running_apps)
-    scheduler.run()
 
 
 def get_apps_to_enable():
@@ -65,7 +37,7 @@ def force_stop_all_apps():
         compose.stop()
 
 
-if __name__ == 'old__main__':
+if __name__ == '__main__':
     if 'v2_all' in sys.argv:
         response = communicator.get_all_apps()
         apps = response.get('response', [])
