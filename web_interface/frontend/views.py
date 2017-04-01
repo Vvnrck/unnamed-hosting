@@ -8,7 +8,7 @@ from django.views.generic import FormView, TemplateView, View
 from django.http import (HttpResponseRedirect, HttpResponseBadRequest,
                          JsonResponse, HttpResponse)
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 from django.shortcuts import render
 
@@ -47,6 +47,11 @@ class LoginOrRegisterView(FormView):
             login(self.request, user)
             return HttpResponseRedirect(reverse('dashboard'))
         return HttpResponseRedirect(reverse('dashboard'))
+
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse('login'))
 
 
 class Dashboard:
@@ -118,8 +123,11 @@ class Dashboard:
 
     @staticmethod
     def get_apps_list(request):
-        apps = models.App.objects.filter(owner=request.user)
-        return render(request, '_app_list.html', {'apps': apps})
+        if request.user.is_authenticated():
+            apps = models.App.objects.filter(owner=request.user)
+            return render(request, '_app_list.html', {'apps': apps})
+        else:
+            return HttpResponseBadRequest()
 
 class Api:
 
@@ -193,7 +201,7 @@ class Api:
     @post_only
     @authenticated_only
     def set_apps_status(request):
-        """ Receive JSON string like [{name: 'Name', current_state: 'enabled'}, ...]
+        """ Receive JSON like [{name: 'Name', current_state: 'enabled'}, ...]
         """
         updates = request.POST.get('updates') or request.GET.get('updates')
         if updates is None:
@@ -206,7 +214,11 @@ class Api:
             app.app_url = update['url']
             
             if app.desired_state == str(models.AppStates.deploy_needed):
-                app.desired_state = models.AppStates.enabled
+                app.desired_state = update['current_state']
+            if update['current_state'] == str(models.AppStates.paused):
+                app.current_state = models.AppStates.disabled
+                app.desired_state = models.AppStates.disabled
+
             app.save()
 
         return JsonResponse({'response': 'success'})

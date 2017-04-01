@@ -1,6 +1,7 @@
 import sys
 import settings
 import sched
+import signal
 import scenarios
 
 
@@ -10,21 +11,13 @@ def periodic(scheduler, interval, action, actionargs=()):
                     (scheduler, interval, action, actionargs))
   
     
-def seconds(t):
-    return t
-
-
-def minutes(t):
-    return 60 * seconds(t)
-
+def seconds(t): return t
+def minutes(t): return 60 * seconds(t)
+def hours(t): return 60 * minutes(t)
     
-def hours(t):
-    return 60 * minutes(t)
-
-
-if __name__ == '__main__':
+    
+def main():
     scenarios.start_apps()
-
     scheduler = sched.scheduler()
     periodic(scheduler, seconds(30), scenarios.deploy_apps)
     periodic(scheduler, seconds(30), scenarios.disable_apps)
@@ -32,3 +25,18 @@ if __name__ == '__main__':
     periodic(scheduler, minutes(10), scenarios.revisit_running_apps)
     scheduler.run()
 
+
+if __name__ == '__main__':
+    original_sigint = signal.getsignal(signal.SIGINT)
+    
+    def exit_gracefully(signum, frame):
+        signal.signal(signal.SIGINT, original_sigint)
+        try:
+            scenarios.shut_down_gracefully()
+            exit(0)
+        except KeyboardInterrupt:
+            sys.exit(1)  
+        signal.signal(signal.SIGINT, exit_gracefully)
+    
+    signal.signal(signal.SIGINT, exit_gracefully)
+    main()

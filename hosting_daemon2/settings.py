@@ -13,6 +13,5 @@ API_METHOD = {
 
 HOSTING_BASE = 'derhostar.io'
 APP_URL_TEMPLATE = '{0}.' + HOSTING_BASE
-
-APP_LOG_FILENAME = '_app_log_file.0xfdda.txt'
+APP_TIMEOUT_MINUTES = 5
 

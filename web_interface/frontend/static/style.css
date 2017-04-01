@@ -3,37 +3,82 @@ button,
 input.btn {
     cursor: pointer;
 }
-
 .control-group {
     margin-top: 10px;
 }
+body {
+    background-image: url(img/default.png);
+}
+.navbar {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+
+
 
 /*login*/
-.login-form {
-    width: 175px;
+#login {
+    background-image: url(img/login.png);
+}
+
+#login .login-form {
     margin: auto;
+    margin-top: 100px;
+    width: 26%;
+    min-width: 290px;
+    height: 340px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+#login .login-form .form-group {
+    height: 230px;
+}
+
+#login .login-form .nav-link {
+    padding: 0;
+    padding-right: 10px;
+}
+
+#login .main-text {
+    color: white;
+}
+
+#login .support-text {
+    color: white;
 }
 
 
 /*dashboard*/
-.app-col {
+#dashboard {
+    background-color: black;
+}
+
+#dashboard .container {
+    min-height: 900px;
+}
+
+#dashboard .card {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+#dashboard .app-col {
     padding: 15px;
 }
 
-.new-app-title,
-.new-app-btn {
+#dashboard .new-app-title,
+#dashboard .new-app-btn {
     display: inline;
 }
-.new-app-btn {
+#dashboard .new-app-btn {
     margin-left: 5px;
 }
-#new-app-form .radio {
+#dashboard #new-app-form .radio {
     padding-right: 5px;
 }
-#new-app-form .radio input {
+#dashboard #new-app-form .radio input {
     margin-right: 5px;
 }
-
-#delete-app-modal-app-name {
+#dashboard #delete-app-modal-app-name {
     font-weight: bold;
 }

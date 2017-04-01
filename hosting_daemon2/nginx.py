@@ -89,3 +89,8 @@ def restart_nginx():
     else:
         docker_nginx.up()
 
+
+def stop_nginx():
+    docker_nginx = DockerCompose(path=NGINX_PATH)
+    docker_nginx.stop()
+

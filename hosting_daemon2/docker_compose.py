@@ -106,7 +106,9 @@ class DockerCompose:
             ''.join(log), '[%d/%b/%Y:%H:%M:%S %z'
         )
         now = datetime.now(tz=last_access_date.tzinfo)
-        return (now - last_access_date).seconds // 60  
+        la = (now - last_access_date).seconds // 60
+        logger.debug('LAST ACCESSED %s -> %s', self.path, la)
+        return la
 
     def logs(self, no_color=True, timestamps=True, tail=1000):
         logger.debug('LOGS at %s (%s lines)', self.path, tail)

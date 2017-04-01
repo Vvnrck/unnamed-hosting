@@ -2,33 +2,24 @@
 {% load crispy_forms_tags %}
 {% block page_title %}namnlös höstar{% endblock %}
 
+{% block view_id %}login{% endblock %}
 {% block body %}
 
-    <div class="jumbotron">
-        <h1 class="display-4">This is Der H&ouml;star - a PaaS.</h1>
-        <p class="lead">Type in your app Git repository, provide some hooks - and we're all set!</p>
-        {% if user.is_authenticated %}
-            <a href="{% url 'dashboard' %}" class="btn btn-lg btn-outline-primary">Go to Dashboard</a>
-        {% endif %}
-    </div>
+    <div style="height: 100px;"></div>
+    <h1 class="display-2 main-text text-center">This is Der H&ouml;star - a PaaS.</h1>
+    <p class="lead support-text text-center">Type in a repository, provide some hooks - and we're all set.</p>
 
     {% if not user.is_authenticated %}
-    <ul class="nav justify-content-center">
-        <li class="nav-item">
-          <a class="nav-link active option-register" href="javascript:void(0)">Register</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link option-login" href="javascript:void(0)">Login</a>
-        </li>
-    </ul>
-
-    <form action="{% url 'login' %}" method="post" class="login-form justify-content-center">
-        <div class="form-group">
-            {% csrf_token %}
-            {{ login_form|crispy }}
-        </div>
-        <input type="submit" value="Register" class="login-form-submit btn btn-primary" />
-    </form>
+    <div class="login-form">
+        <form action="{% url 'login' %}" method="post">
+            <div class="form-group">
+                {% csrf_token %}
+                {{ login_form|crispy }}
+            </div>
+            <input type="submit" value="Register" class="login-form-submit btn btn-primary" />
+            <button type="button" class="btn btn-link login-form-type-toggle">Login instead</button>
+        </form>
+    <div>
     {% endif %}
 
 {% endblock %}

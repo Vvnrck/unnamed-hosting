@@ -3,18 +3,25 @@ window.app = {
 
 
 'login': function () {
+    var $optionLoginRegisterToggle = $('.login-form-type-toggle'),
+        $password2 = $('#div_id_password2'),
+        $isRegister = $('#id_is_registration'),
+        $submitButton = $('.login-form-submit');
 
-    $('#id_is_registration').val(1);
-    $('.option-register').click(function (e) {
-        $('#div_id_password2').show();
-        $('#id_is_registration').val(1);
-        $('.login-form-submit').val('Register');
-    });
-
-    $('.option-login').click(function (e) {
-        $('#div_id_password2').hide();
-        $('#id_is_registration').val(0);
-        $('.login-form-submit').val('Log in');
+    $optionLoginRegisterToggle.click(function () {
+        var type = $optionLoginRegisterToggle.text();
+        if (type === 'Login instead') {
+            $password2.hide();
+            $isRegister.val(0);
+            $submitButton.val('Log in');
+            $optionLoginRegisterToggle.text('Register instead');
+        }
+        else if (type === 'Register instead') {
+            $password2.show();
+            $isRegister.val(1);
+            $submitButton.val('Register');
+            $optionLoginRegisterToggle.text('Login instead');
+        }
     });
 },
 
@@ -121,11 +128,14 @@ window.app = {
         $.ajax({
             type: 'GET',
             url: window.app_data.get_apps_url,
-            success: function(data) {
+            success: function (data) {
                 console.log('window.app_data.get_apps_url success');
                 $('.app-col:not(.new-app-form-col)').remove();
                 $('.new-app-form-col').parent().prepend(data);
                 initEvents();
+            },
+            error: function (e) {
+                window.location.href = window.location.host;
             }
         });
     }, 10000);

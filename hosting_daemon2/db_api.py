@@ -92,8 +92,7 @@ class RemoteHostingDatabase:
         updates = [{
             'name': app.name,
             'url': app.app_url,
-            'current_state': 'AppStates.enabled' if app.is_running 
-                             else 'AppStates.disabled'
+            'current_state': app.current_state
         } for app in apps]
         updates = json.dumps(updates)
         logger.debug('Updating DB apps status with %s', updates)

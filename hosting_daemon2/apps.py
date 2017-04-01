@@ -38,12 +38,19 @@ class BaseApp:
         self.docker_compose = DockerCompose(self.path)
 
         self._project_hooks = None
+        self.is_paused = False
         
     def __repr__(self):
         return '{}(id={}, name={}, type={})'.format(
             type(self).__name__, 'NA', self.name, self.app_type
         )
 
+    @property
+    def current_state(self):
+        s = 'AppStates.enabled' if self.is_running else 'AppStates.disabled'
+        s = 'AppStates.paused' if self.is_paused else s
+        return s
+    
     @property
     def is_running(self):
         return self.docker_compose.is_up()  # bool(self.docker_compose.ps())
