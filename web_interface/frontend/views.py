@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from django.core.urlresolvers import reverse
 from django.views.generic import FormView, TemplateView, View
+from django.views.generic.dates import ArchiveIndexView
 from django.http import (HttpResponseRedirect, HttpResponseBadRequest,
                          JsonResponse, HttpResponse)
 from django.contrib.auth.models import User
@@ -42,11 +43,14 @@ class LoginOrRegisterView(FormView):
         password = form.cleaned_data['password']
         is_reg = form.cleaned_data['is_registration']
         auth_method = User.objects.create_user if is_reg else authenticate
+        print(auth_method)
         user = auth_method(username=name, password=password)
         if user is not None:
+            print('user is not None')
             login(self.request, user)
             return HttpResponseRedirect(reverse('dashboard'))
-        return HttpResponseRedirect(reverse('dashboard'))
+        print('user is not None')
+        return HttpResponseRedirect(reverse('login'))
 
 
 def logout_view(request):
@@ -97,6 +101,10 @@ class Dashboard:
             app = models.App.objects.get(pk=request.POST['id'])
             app.desired_state = models.AppStates.disabled
             app.save()
+            models.Notification.objects.create(
+                app=app,
+                message='Desired status set to disabled'.format(str(app))
+            )
             return HttpResponse(status=204)
 
 
@@ -105,6 +113,10 @@ class Dashboard:
             app = models.App.objects.get(pk=request.POST['id'])
             app.desired_state = models.AppStates.enabled
             app.save()
+            models.Notification.objects.create(
+                app=app,
+                message='Desired status set to enabled'.format(str(app))
+            )
             return HttpResponse(status=204)
 
 
@@ -128,6 +140,20 @@ class Dashboard:
             return render(request, '_app_list.html', {'apps': apps})
         else:
             return HttpResponseBadRequest()
+
+
+class NotificationHistory(TemplateView):
+    template_name = 'history.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'notifications': models.Notification.objects.filter(
+                app__in=self.request.user.apps.all()
+            )
+        })
+        return context
+
 
 class Api:
 
@@ -218,6 +244,17 @@ class Api:
             if update['current_state'] == str(models.AppStates.paused):
                 app.current_state = models.AppStates.disabled
                 app.desired_state = models.AppStates.disabled
+                models.Notification.objects.create(
+                    app=app,
+                    message='App stopped due to inactivity'.format(str(app))
+                )
+                
+            models.Notification.objects.create(
+                app=app,
+                message='Current status set to {}'.format(
+                    update['current_state']
+                )
+            )
 
             app.save()
 

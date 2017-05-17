@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^resume-app$',   login_required(frontend.views.Dashboard.ResumeAppView.as_view()), name='resume-app'),
     url(r'^get-logs',      login_required(frontend.views.Dashboard.request_logs_view),       name='get-app-logs'),
     url(r'^get-apps-list$',frontend.views.Dashboard.get_apps_list,                           name='get-apps-list'),
+    url(r'^history$',      login_required(frontend.views.NotificationHistory.as_view()),     name='history'),
 
     url(r'^api/login', frontend.views.Api.login),
     url(r'^api/apps-to-enable', frontend.views.Api.get_apps_to_enable),

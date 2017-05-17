@@ -28,7 +28,7 @@ class AppType(enum.Enum):
 
 
 class App(models.Model):
-    owner = models.ForeignKey(User)  # make nullable. Don't delete apps
+    owner = models.ForeignKey(User, related_name='apps')  # make nullable. Don't delete apps
 
     name = models.CharField(max_length=128, unique=True)
     repo_url = models.CharField(max_length=4096)
@@ -53,6 +53,12 @@ class App(models.Model):
         
         with app.log_file_path.open(mode='w') as logs:
             logs.write('no one has submitted logs yet')
+            
+        Notification.objects.create(
+            app=app,
+            message='{} has been created'.format(str(app))
+        )
+        
         app.save()
         return app
         
@@ -121,3 +127,10 @@ class LogRequest(models.Model):
         self.log_uploaded = False
         return data
 
+
+class Notification(models.Model):
+    app = models.ForeignKey(App)
+    message = models.CharField(max_length=4096)
+    received_at = models.DateTimeField(auto_now=True)
+
+    

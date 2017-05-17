@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block view_id %}dashboard{% endblock %}
+{% block body %}
+    
+    <div class="container" style="background-color: rgba(255, 255, 255, 0.8);">
+    <h2 class="pt-3">Latest events:</h2>
+    
+    {% for n in notifications %}
+    
+      <div>
+          {{ n.received_at }}, <strong>{{ n.app.name }}</strong>: "{{ n.message }}"
+      </div>
+    
+    {% empty %}
+      <h3>None yet.</h3>
+    {% endfor %}
+    </div>
+
+{% endblock %}
